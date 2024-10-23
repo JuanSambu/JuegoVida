@@ -1,52 +1,52 @@
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
-#include <stdbool.h>
+/***************************************************************************//**
+  @file     main.c
+  @brief    Programa principal del Juego de la Vida
+  @author   Franco Bringas
+ ******************************************************************************/
 
-int main()
-{
-    al_init();
-    al_install_keyboard();
+#include <stdio.h>
+#include "general.h"
+#include "frontend.h"
+#include "backend.h"
 
-    ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
-    ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    int screen_width = al_get_display_width(al_get_current_display());
-    int screen_height = al_get_display_height(al_get_current_display());
+int main(void) {
 
-    ALLEGRO_DISPLAY* disp = al_create_display(screen_width, screen_height);
+	char juego_vida [CANT_FILS] [CANT_COLS];
+	char juego_vida_old [CANT_FILS] [CANT_COLS];
 
-    ALLEGRO_FONT* font = al_create_builtin_font();
-
-    al_register_event_source(queue, al_get_keyboard_event_source());
-    al_register_event_source(queue, al_get_display_event_source(disp));
-    al_register_event_source(queue, al_get_timer_event_source(timer));
-
-    bool redraw = true;
-    ALLEGRO_EVENT event;
-
-    al_start_timer(timer);
-    while(1)
-    {
-        al_wait_for_event(queue, &event);
-
-        if(event.type == ALLEGRO_EVENT_TIMER)
-            redraw = true;
-        else if((event.type == ALLEGRO_EVENT_KEY_DOWN) || (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE))
-            break;
-
-        if(redraw && al_is_event_queue_empty(queue))
-        {
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_text(font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
-            al_flip_display();
-
-            redraw = false;
-        }
-    }
-
-    al_destroy_font(font);
-    al_destroy_display(disp);
-    al_destroy_timer(timer);
-    al_destroy_event_queue(queue);
-
-    return 0;
+	printf("*Juego de la Vida*\n(Presione 'q' para salir)\n");
+	int i, p, generaciones;
+	
+	/* Inicialización de matriz */
+	for(i=0;i<CANT_FILS;i++) {
+		for(p=0;p<CANT_COLS;p++) {
+			juego_vida[i][p]=' ';
+		}
+	}
+	/* Células iniciales */
+	//Nota: La matriz debe ser lo suficientemente grande para ver los datos correctamente.
+	juego_vida[0][0]='*';
+	juego_vida[0][2]='*';
+	juego_vida[0][1]='*';
+	juego_vida[1][0]='*';
+	juego_vida[3][0]='*';
+	juego_vida[2][0]='*';
+	juego_vida[2][1]='*';
+	imprimir(juego_vida);	//Imprime la matriz en pantalla (Caso inicial).
+	
+	/* Ciclo de Impresión */
+	do {
+		printf("Ingrese cuántas generaciones avanzar: ");
+		generaciones = lectura();
+		if (generaciones != -1) {
+			for(i=0 ; i<generaciones ; i++) {
+				copy(juego_vida,juego_vida_old);//Guarda el estado de la matriz en otra matriz auxiliar
+				deadOrAlive(juego_vida,juego_vida_old);	//Modifica la matriz original, comparando los vecinos de cada célula con ayuda de la auxiliar
+			}
+			imprimir(juego_vida);
+		}
+	} while (generaciones != -1);
+	
+	return 0;
 }
+
