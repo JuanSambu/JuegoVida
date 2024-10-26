@@ -13,8 +13,6 @@
 #include "frontend.h"
 #include "backend.h"
 
-#define CANT_FILS 10
-#define CANT_COLS 10
 
 int main() {
     // Inicializar Allegro
@@ -29,18 +27,21 @@ int main() {
         return -1;
     }
 
-    // Crear el display con un tamaño más manejable
-    int display_width = 1280;  // Resolución horizontal común
-    int display_height = 720;  // Resolución vertical común
+	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
+	ALLEGRO_FONT* font = al_create_builtin_font();
 
-    al_set_new_display_flags(ALLEGRO_WINDOWED); // Configurar para usar ventana con bordes (no pantalla completa)
-    ALLEGRO_DISPLAY* disp = al_create_display(display_width, display_height);
+	al_register_event_source(queue, al_get_keyboard_event_source());
+	al_register_event_source(queue, al_get_display_event_source(disp));
+	al_register_event_source(queue, al_get_timer_event_source(timer));
+
+	/* Configuro Display (en pantalla completa) */
+    ALLEGRO_DISPLAY* disp = al_create_display(ALLEGRO_FULLSCREEN);
     if (!disp) {
         fprintf(stderr, "Error: no se pudo crear el display.\n");
         return -1;
     }
 
-    // Crear el temporizador
+    /* Configuro Temporizador */
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     if (!timer) {
         fprintf(stderr, "Error: no se pudo crear el temporizador.\n");
@@ -48,7 +49,7 @@ int main() {
         return -1;
     }
 
-    // Crear la cola de eventos
+    /* Configuro Cola de Eventos */
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     if (!queue) {
         fprintf(stderr, "Error: no se pudo crear la cola de eventos.\n");
@@ -57,7 +58,7 @@ int main() {
         return -1;
     }
 
-    // Crear la fuente
+    /* Configuro Fuente */
     ALLEGRO_FONT* font = al_create_builtin_font();
     if (!font) {
         fprintf(stderr, "Error: no se pudo crear la fuente.\n");
@@ -65,6 +66,13 @@ int main() {
         al_destroy_timer(timer);
         al_destroy_display(disp);
         return -1;
+    }
+
+    ALLEGRO_BITMAP* mysha = al_load_bitmap("mysha.png");
+    if(!mysha)
+    {
+        printf("couldn't load mysha\n");
+        return 1;
     }
 
     // Registrar las fuentes de eventos en la cola
@@ -75,7 +83,7 @@ int main() {
     // Empezar el temporizador
     al_start_timer(timer);
 
-    // Inicialización del Juego de la Vida
+    /* Inicialización del Juego de la Vida */
     char juego_vida[CANT_FILS][CANT_COLS];
     char juego_vida_old[CANT_FILS][CANT_COLS];
 
@@ -142,6 +150,7 @@ int main() {
     al_destroy_display(disp);
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
+    al_destroy_bitmap(mysha);
 
     return 0;
 }
