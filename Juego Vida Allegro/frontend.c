@@ -5,6 +5,9 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+
 #include "frontend.h"
 
 /* Lectura de Entrada */
@@ -54,14 +57,32 @@ int lectura() {
 	return generaciones;
 }
 
+
 /* Impresión de la Matriz Principal */
-void imprimir(char juego_vida[][CANT_COLS]) {
+void imprimir(const ALLEGRO_FONT* font, int alto, int ancho, char juego_vida[][CANT_COLS]) {
 	int i,p;
+
+	al_clear_to_color(al_map_rgb(0, 0, 0));		// Limpio pantalla con negro.
+
+	// En orden: fuente, color, x, y, alineación, texto.
+	al_draw_textf(font, al_map_rgb(255, 255, 255), DISPLAY_ANCHO/2.0, 20, ALLEGRO_ALIGN_CENTRE,
+			"Juego de la Vida - Presione 'q' para salir");
+
+	/* Imprimo Matriz */
 	for(i=0;i<CANT_FILS;i++) {
 		for(p=0;p<CANT_COLS;p++) {
-			printf("|");
-			printf("%c", juego_vida[i][p]);
+
+			al_draw_textf(font, al_map_rgb(0, 255, 0),
+			ancho*p*2+DISPLAY_ANCHO/4.0, alto*i+50, 0,
+			"|%c", juego_vida[i][p]);
 		}
-	printf("|\n");
+
+		al_draw_textf(font, al_map_rgb(0, 255, 0),
+			ancho*p*2+DISPLAY_ANCHO/4.0, alto*i+50, 0,
+			"|", juego_vida[i][p]);
 	}
+	al_draw_textf(font, al_map_rgb(255, 255, 255), DISPLAY_ANCHO/2.0, alto*(i+1)+50, ALLEGRO_ALIGN_CENTRE,
+			"Ingrese cuántas generaciones avanzar: ");
+
+	al_flip_display();
 }

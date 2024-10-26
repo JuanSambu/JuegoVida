@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
-#include <allegro5/allegro_primitives.h>
 
 #include "frontend.h"
 #include "backend.h"
@@ -10,8 +9,7 @@
 static void must_init (bool test, const char *description);
 static void imprimir_display (char juego_vida[][CANT_COLS]);
 
-#define DISPLAY_ANCHO 	1000
-#define DISPLAY_ALTO 	350
+
 
 int main() {
 
@@ -44,9 +42,6 @@ int main() {
     al_register_event_source(queue, al_get_display_event_source(disp));
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
-    int x = 0;
-    int y = 0;
-
     char juego_vida [CANT_FILS] [CANT_COLS];
 	char juego_vida_old [CANT_FILS] [CANT_COLS];
 
@@ -60,7 +55,6 @@ int main() {
 	}
 	/* Células iniciales */
 	//Nota: La matriz debe ser lo suficientemente grande para ver los datos correctamente.
-	printf("*Juego de la Vida*\n(Presione 'q' para salir)\n");
 	juego_vida[0][0]='*';
 	juego_vida[0][2]='*';
 	juego_vida[0][1]='*';
@@ -68,55 +62,55 @@ int main() {
 	juego_vida[3][0]='*';
 	juego_vida[2][0]='*';
 	juego_vida[2][1]='*';
-	imprimir(juego_vida);	//Imprime la matriz en pantalla (Caso inicial).
 
     bool flag = false;
     bool redraw = true;
     ALLEGRO_EVENT event;
+
+    ALLEGRO_KEYBOARD_STATE ks;
 
     al_start_timer(timer);
     while(!flag)
     {
         al_wait_for_event(queue, &event);
 
-        if (event.type == ALLEGRO_KEY_Q || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-			flag = true;
-        }
-        else if (event.type == ALLEGRO_KEY_ENTER) {
-        	redraw = true;
-        	generaciones = 1;
-        }
-        else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-        	redraw = true;
-        	char key = event.keyboard.unichar;
+        switch (event.type) {
+        	case ALLEGRO_EVENT_DISPLAY_CLOSE:
+				flag = true;
+				break;
 
-        	if (key >= '0' && key <= '9') {
-        		redraw = true;
-        		generaciones = lectura();
+        	case ALLEGRO_EVENT_KEY_DOWN:
+        		al_get_keyboard_state(&ks);
 
-        	}
+        		if(al_key_down(&ks, ALLEGRO_KEY_Q) || al_key_down(&ks, ALLEGRO_KEY_ESCAPE)) {
+        		    flag = true;
+        		}
+        		else {
+        			redraw = true;
+				//	char key = event.keyboard.unichar;
+					generaciones = lectura();
+
+					if (generaciones == -1) {
+						flag = true;
+					}
+					else {
+						for(i=0 ; i<generaciones ; i++) {
+							copy(juego_vida,juego_vida_old);//Guarda el estado de la matriz en otra matriz auxiliar
+							deadOrAlive(juego_vida,juego_vida_old);	//Modifica la matriz original, comparando los vecinos de cada célula con ayuda de la auxiliar
+						}
+					}
+        		}
+        		break;
+
+        	/////////case mouse? TODO
+        	default:
+        		break;
         }
 
         if(redraw && al_is_event_queue_empty(queue))
         {
-        	// En orden: fuente, color, x, y, alineación, texto, parámetro.
-			al_clear_to_color(al_map_rgb(0, 0, 0));
-			al_draw_textf(font, al_map_rgb(255, 255, 255), DISPLAY_ANCHO/2.0, 20, ALLEGRO_ALIGN_CENTRE,
-					"Juego de la Vida - Presione 'q' para salir");
-
-			for(i=0;i<CANT_FILS;i++) {
-				for(p=0;p<CANT_COLS;p++) {
-
-					al_draw_textf(font, al_map_rgb(0, 255, 0),
-					ancho_caracter*p*2+DISPLAY_ANCHO/4.0, alto_linea*i+50, 0,
-					"|%c", juego_vida[i][p]);
-				}
-
-				al_draw_textf(font, al_map_rgb(0, 255, 0),
-					ancho_caracter*p*2+DISPLAY_ANCHO/4.0, alto_linea*i+50, 0,
-					"|", juego_vida[i][p]);
-			}
-			al_flip_display();
+        	printf("hola\n");
+        	imprimir(font, alto_linea, ancho_caracter, juego_vida);
 
             redraw = false;
         }

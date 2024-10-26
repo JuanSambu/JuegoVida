@@ -13,6 +13,8 @@
  
 #define CANT_FILS 33
 #define CANT_COLS 33
+#define DISPLAY_ANCHO 	1000
+#define DISPLAY_ALTO 	350
 
 /*checks*/
 #ifndef CANT_COLS
