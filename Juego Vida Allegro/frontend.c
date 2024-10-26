@@ -5,7 +5,6 @@
  ******************************************************************************/
 
 #include <stdio.h>
-#include "general.h"
 #include "frontend.h"
 
 /* Lectura de Entrada */

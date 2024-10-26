@@ -51,11 +51,11 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1356799742.307114756" name="Input.c" rcbsApplicability="disable" resourcePath="pruebas/Input.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1646071526.2099866441">
-						<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1646071526.2099866441" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1646071526"/>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1356799742.636138624" name="juego_vida_allegro.c" rcbsApplicability="disable" resourcePath="Juego Vida Allegro/juego_vida_allegro.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1646071526.849523379">
+						<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1646071526.849523379" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1646071526"/>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="juego_vida_allegro.c|pruebas/tutorial display allegro.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="pruebas/Input.c|juego_vida_allegro.c|pruebas/tutorial display allegro.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

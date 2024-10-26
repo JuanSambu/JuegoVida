@@ -11,8 +11,8 @@
  * CONSTANT DEFINITIONS USING #DEFINE
  ******************************************************************************/
  
-#define CANT_FILS 4
-#define CANT_COLS 4
+#define CANT_FILS 33
+#define CANT_COLS 33
 
 /*checks*/
 #ifndef CANT_COLS

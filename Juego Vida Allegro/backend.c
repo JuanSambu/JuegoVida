@@ -5,7 +5,6 @@
  ******************************************************************************/
 
 #include <stdio.h>
-#include "general.h"
 #include "backend.h"
 
 /* Matriz Auxiliar */

@@ -13,6 +13,6 @@ OBJS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Juego\ Vida\ Allegro \
 . \
-pruebas \
 
