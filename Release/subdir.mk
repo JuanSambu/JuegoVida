@@ -5,8 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../backend.c \
-../frontend.c \
-../juego_vida_allegro.c 
+../frontend.c 
 
 O_SRCS += \
 ../backend.o \
@@ -15,13 +14,11 @@ O_SRCS += \
 
 C_DEPS += \
 ./backend.d \
-./frontend.d \
-./juego_vida_allegro.d 
+./frontend.d 
 
 OBJS += \
 ./backend.o \
-./frontend.o \
-./juego_vida_allegro.o 
+./frontend.o 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -36,7 +33,7 @@ OBJS += \
 clean: clean--2e-
 
 clean--2e-:
-	-$(RM) ./backend.d ./backend.o ./frontend.d ./frontend.o ./juego_vida_allegro.d ./juego_vida_allegro.o
+	-$(RM) ./backend.d ./backend.o ./frontend.d ./frontend.o
 
 .PHONY: clean--2e-
 
