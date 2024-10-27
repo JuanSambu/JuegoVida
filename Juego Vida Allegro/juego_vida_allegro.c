@@ -6,10 +6,9 @@
 #include "frontend.h"
 #include "backend.h"
 
+#define MAX_STRING 4	//Cantidad de caracteres que pueden ingresarse (menos uno para el \0)
+
 static void must_init (bool test, const char *description);
-static void imprimir_display (char juego_vida[][CANT_COLS]);
-
-
 
 int main() {
 
@@ -36,8 +35,6 @@ int main() {
     int alto_linea = al_get_font_line_height(font);
     int ancho_caracter = al_get_text_width(font, "*");
 
-    must_init(al_init_primitives_addon(), "primitives");
-
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(disp));
     al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -45,7 +42,8 @@ int main() {
     char juego_vida [CANT_FILS] [CANT_COLS];
 	char juego_vida_old [CANT_FILS] [CANT_COLS];
 
-	int i, p, generaciones;
+	int i, p;
+	long int generaciones = 0;
 
 	/* Inicialización de matriz */
 	for(i=0;i<CANT_FILS;i++) {
@@ -63,8 +61,13 @@ int main() {
 	juego_vida[2][0]='*';
 	juego_vida[2][1]='*';
 
+	char input[MAX_STRING] = {0}; // String para leer el input del teclado
+	int input_len = 0;     // Longitud del input actual
+	int enter_pressed = 0;
+
     bool flag = false;
     bool redraw = true;
+
     ALLEGRO_EVENT event;
 
     ALLEGRO_KEYBOARD_STATE ks;
@@ -79,7 +82,7 @@ int main() {
 				flag = true;
 				break;
 
-        	case ALLEGRO_EVENT_KEY_DOWN:
+        	case ALLEGRO_EVENT_KEY_CHAR:
         		al_get_keyboard_state(&ks);
 
         		if(al_key_down(&ks, ALLEGRO_KEY_Q) || al_key_down(&ks, ALLEGRO_KEY_ESCAPE)) {
@@ -87,18 +90,26 @@ int main() {
         		}
         		else {
         			redraw = true;
-				//	char key = event.keyboard.unichar;
-					generaciones = lectura();
 
-					if (generaciones == -1) {
-						flag = true;
-					}
-					else {
-						for(i=0 ; i<generaciones ; i++) {
+        			char key = event.keyboard.unichar;
+        			lectura(key, input, sizeof(input), &input_len, &enter_pressed);
+
+        			if (enter_pressed) {
+        				printf("hola2\n");
+        				if (input_len == 0) {
+							generaciones = 1;
+						}
+						else {
+							for (p=1, i = input_len-1 ; i>=0 ; p*=10, i--) {
+								generaciones += (input[i]-'0')*p;
+							}
+						}
+						for (i=0 ; i<generaciones ; i++) {
 							copy(juego_vida,juego_vida_old);//Guarda el estado de la matriz en otra matriz auxiliar
 							deadOrAlive(juego_vida,juego_vida_old);	//Modifica la matriz original, comparando los vecinos de cada célula con ayuda de la auxiliar
 						}
-					}
+        			}
+
         		}
         		break;
 
@@ -109,10 +120,15 @@ int main() {
 
         if(redraw && al_is_event_queue_empty(queue))
         {
-        	printf("hola\n");
-        	imprimir(font, alto_linea, ancho_caracter, juego_vida);
+        	redraw = false;
 
-            redraw = false;
+        	if (enter_pressed) {
+				enter_pressed = 0;
+				input_len = 0;
+				input[0] = '\0';  // Reinicia la cadena
+			}
+
+        	imprimir(font, alto_linea, ancho_caracter, juego_vida, input);
         }
     }
 
@@ -124,17 +140,13 @@ int main() {
     return 0;
 }
 
+/* Reviso si Allegro se inicializó correctamente */
 static void must_init(bool test, const char *description) {
     if(test) return;
 
     printf("couldn't initialize %s\n", description);
     exit(1);
 }
-/*
-static void imprimir_display (char juego_vida[][CANT_COLS]) {
-
-
-}*/
 
 
 

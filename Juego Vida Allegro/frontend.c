@@ -11,57 +11,31 @@
 #include "frontend.h"
 
 /* Lectura de Entrada */
-int lectura() {
-	int entrada, generaciones, auxiliar, i, digito;
-	int flag, exit;
-	char c;
-	
-	do {
-		c = getchar();
-		flag=0;
-		exit = 0;
-		entrada = 0;
-		for (i=1 ; c != '\n' ; i*=10) {
-			if (c == 'q' || c == 'Q') {
-				exit=1;
-			}
-			else if ((c > '9' || c < '0')) {
-				printf("Error en la carga de datos. Ingrese un número natural: ");
-				flag=1;
-			}
-			else {
-				entrada += (c-'0')*i;		// Al multiplicar por potencias de 10, permite conseguir números de varias cifras.
-			}
-			c = getchar();
-		}
-	} while (flag != 0);	// Al detectar un caracter no numérico, vuelve a pedir los datos.
-	
-	if(exit == 1) {		// Si se presionó q, se finalizará el programa.
-		generaciones = -1;
+void lectura (char key, char input[], int tamaño, int *input_len, int *enter_pressed) {
+
+	// Si es un número:
+	if (key >= '0' && key <= '9' && *input_len < tamaño-1) {
+		input[(*input_len)++] = key;
+		input[*input_len] = '\0';  // Asegura el final de la cadena
+		printf("hola1\n");
 	}
-	
-	else if (i == 1) {	// Si el usuario presiona enter sin ingresar ningún número, avanza una generación. 
-		generaciones = 1;
+
+	// Si se presiona Backspace:
+	else if (key == '\b' && *input_len > 0) {
+		input[--(*input_len)] = '\0';
 	}
-	
-	else {
-		/* Intercambio orden de dígitos (menos significativo a más significativo) */
-		i/=10;
-		generaciones=0;
-		
-		for (auxiliar=entrada ; i>=1 ; auxiliar/=10, i/=10) {
-			digito = auxiliar%10;
-			generaciones = generaciones*10 + digito;
-		}
+
+	// Si se presiona Enter
+	else if (key == '\n' || key == '\r') {
+		*enter_pressed = 1;
 	}
-	return generaciones;
 }
 
 
 /* Impresión de la Matriz Principal */
-void imprimir(const ALLEGRO_FONT* font, int alto, int ancho, char juego_vida[][CANT_COLS]) {
-	int i,p;
+void imprimir(const ALLEGRO_FONT* font, int alto, int ancho, char juego_vida[][CANT_COLS], char input[]) {
 
+	int i,p;
 	al_clear_to_color(al_map_rgb(0, 0, 0));		// Limpio pantalla con negro.
 
 	// En orden: fuente, color, x, y, alineación, texto.
@@ -79,10 +53,10 @@ void imprimir(const ALLEGRO_FONT* font, int alto, int ancho, char juego_vida[][C
 
 		al_draw_textf(font, al_map_rgb(0, 255, 0),
 			ancho*p*2+DISPLAY_ANCHO/4.0, alto*i+50, 0,
-			"|", juego_vida[i][p]);
+			"|");
 	}
 	al_draw_textf(font, al_map_rgb(255, 255, 255), DISPLAY_ANCHO/2.0, alto*(i+1)+50, ALLEGRO_ALIGN_CENTRE,
-			"Ingrese cuántas generaciones avanzar: ");
+			"Ingrese cuántas generaciones avanzar: %s", input);
 
 	al_flip_display();
 }

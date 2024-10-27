@@ -11,8 +11,8 @@
  * CONSTANT DEFINITIONS USING #DEFINE
  ******************************************************************************/
  
-#define CANT_FILS 33
-#define CANT_COLS 33
+#define CANT_FILS 30
+#define CANT_COLS 30
 #define DISPLAY_ANCHO 	1000
 #define DISPLAY_ALTO 	350
 
