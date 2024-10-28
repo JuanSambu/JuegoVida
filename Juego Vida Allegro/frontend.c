@@ -4,7 +4,6 @@
   @author   Augusto Milani
  ******************************************************************************/
 
-#include <stdio.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
 
@@ -17,7 +16,6 @@ void lectura (char key, char input[], int tamaño, int *input_len, int *enter_pr
 	if (key >= '0' && key <= '9' && *input_len < tamaño-1) {
 		input[(*input_len)++] = key;
 		input[*input_len] = '\0';  // Asegura el final de la cadena
-		printf("hola1\n");
 	}
 
 	// Si se presiona Backspace:

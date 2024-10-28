@@ -6,18 +6,19 @@
 #include "frontend.h"
 #include "backend.h"
 
-#define MAX_STRING 4	//Cantidad de caracteres que pueden ingresarse (menos uno para el \0)
-
 static void must_init (bool test, const char *description);
 
 int main() {
 
+	srand(time(NULL));	//Semilla para función rand().
+
+	/* Inicializo Allegro */
     must_init(al_init(), "allegro");
     must_init(al_install_keyboard(), "keyboard");
+    must_init(al_install_mouse(), "mouse");
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 30.0);
     must_init(timer, "timer");
-
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
     must_init(queue, "queue");
 
@@ -37,41 +38,40 @@ int main() {
 
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(disp));
-    al_register_event_source(queue, al_get_timer_event_source(timer));
+    al_register_event_source(queue, al_get_mouse_event_source());
 
-    char juego_vida [CANT_FILS] [CANT_COLS];
-	char juego_vida_old [CANT_FILS] [CANT_COLS];
+	/* Variables y Flags */
+    char juego_vida [CANT_FILS] [CANT_COLS];		// Matriz principal.
+	char juego_vida_old [CANT_FILS] [CANT_COLS];	// Matriz auxiliar.
+	int i, p;	//auxiliares
+	long int generaciones = 0;		//Generaciones a avanzar.
 
-	int i, p;
-	long int generaciones = 0;
+	char input[MAX_STRING] = {0};	// String para leer el input del teclado.
+	int input_len = 0;				// Longitud del input actual.
+	int enter_pressed = 0;			// Bandera de enter.
+	ALLEGRO_EVENT event;			// Evento que ocurrió (ver switch).
+	ALLEGRO_KEYBOARD_STATE ks;		// Registro del teclado.
+	bool flag = false;				// Bandera para terminar programa.
+	bool redraw = true;				// Bandera para dibujar la matriz principal.
 
 	/* Inicialización de matriz */
-	for(i=0;i<CANT_FILS;i++) {
+	for(i=0 ; i<CANT_FILS ; i++) {
 		for(p=0;p<CANT_COLS;p++) {
 			juego_vida[i][p]=' ';
 		}
 	}
+
 	/* Células iniciales */
-	//Nota: La matriz debe ser lo suficientemente grande para ver los datos correctamente.
-	juego_vida[0][0]='*';
-	juego_vida[0][2]='*';
-	juego_vida[0][1]='*';
-	juego_vida[1][0]='*';
-	juego_vida[3][0]='*';
-	juego_vida[2][0]='*';
-	juego_vida[2][1]='*';
+	int inicio = 0;
+	do {
+		inicio = (rand()%CANT_COLS+1) * (rand()%CANT_FILS+1); // alto*ancho células como máximo
+	} while(inicio == CANT_COLS*CANT_FILS);
 
-	char input[MAX_STRING] = {0}; // String para leer el input del teclado
-	int input_len = 0;     // Longitud del input actual
-	int enter_pressed = 0;
+	for (i=0 ; i<inicio ; i++) {
+		juego_vida[rand()%CANT_FILS][rand()%CANT_COLS] = '*';
+	}	// Elije aleatoriamente una cantidad de células iniciales y las coloca aleatoriamente en la matriz principal.
 
-    bool flag = false;
-    bool redraw = true;
-
-    ALLEGRO_EVENT event;
-
-    ALLEGRO_KEYBOARD_STATE ks;
-
+    /* Programa Principal */
     al_start_timer(timer);
     while(!flag)
     {
@@ -79,48 +79,51 @@ int main() {
 
         switch (event.type) {
         	case ALLEGRO_EVENT_DISPLAY_CLOSE:
-				flag = true;
+				flag = true;	// Al cerrar el display, termina el programa.
 				break;
 
         	case ALLEGRO_EVENT_KEY_CHAR:
         		al_get_keyboard_state(&ks);
 
         		if(al_key_down(&ks, ALLEGRO_KEY_Q) || al_key_down(&ks, ALLEGRO_KEY_ESCAPE)) {
-        		    flag = true;
+        		    flag = true;	// Si se aprieta Q o ENTER, termina el programa.
         		}
         		else {
         			redraw = true;
-
-        			char key = event.keyboard.unichar;
+        			char key = event.keyboard.unichar;	// Registro el caracter presionado.
         			lectura(key, input, sizeof(input), &input_len, &enter_pressed);
 
         			if (enter_pressed) {
-        				printf("hola2\n");
         				if (input_len == 0) {
-							generaciones = 1;
+							generaciones = 1;	// Si sólo se presionó ENTER, avanza una generación.
 						}
 						else {
 							for (p=1, i = input_len-1 ; i>=0 ; p*=10, i--) {
-								generaciones += (input[i]-'0')*p;
+								generaciones += (input[i]-'0')*p;	// Cambia orden de dígitos (menos significativo a más significativo).
 							}
 						}
-						for (i=0 ; i<generaciones ; i++) {
-							copy(juego_vida,juego_vida_old);//Guarda el estado de la matriz en otra matriz auxiliar
-							deadOrAlive(juego_vida,juego_vida_old);	//Modifica la matriz original, comparando los vecinos de cada célula con ayuda de la auxiliar
-						}
         			}
-
         		}
         		break;
 
-        	/////////case mouse? TODO
+        	case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+				redraw = true;
+				generaciones = 1;	// Si se presiona un botón del mouse, avanza una generación.
+				break;
+
         	default:
         		break;
         }
 
+        /* Rutina de Impresión */
         if(redraw && al_is_event_queue_empty(queue))
         {
         	redraw = false;
+        	for (i=0 ; i<generaciones ; i++) {
+				copy(juego_vida,juego_vida_old); // Guarda el estado de la matriz en otra matriz auxiliar
+				deadOrAlive(juego_vida,juego_vida_old);	// Modifica la matriz original, comparando los vecinos de cada célula con ayuda de la auxiliar
+        	}
+        	generaciones = 0;
 
         	if (enter_pressed) {
 				enter_pressed = 0;
@@ -128,10 +131,11 @@ int main() {
 				input[0] = '\0';  // Reinicia la cadena
 			}
 
-        	imprimir(font, alto_linea, ancho_caracter, juego_vida, input);
+        	imprimir(font, alto_linea, ancho_caracter, juego_vida, input); // Imprime en display.
         }
     }
 
+    /* Finalización del Programa */
     al_destroy_font(font);
     al_destroy_display(disp);
     al_destroy_timer(timer);
